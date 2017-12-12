@@ -16,13 +16,11 @@
 #define NO_ACCEL
 int state;
 int cm;
-int objectDistance = 5;
-int threshold = 500;
+int objectDistance = 8;
+int threshold = 700;
 int lineLeft;
 int lineCenter;
 int lineRight;
-int onLine = 0;
-int checkCenterLine = 0;
 bool magBin = false;
 
 
@@ -64,8 +62,9 @@ void loop()
         sparki.moveLeft(20);
         cm = sparki.ping(); // measures the distance with Sparki's eyes
         delay(3000);
-
-        if (cm != -1) { // ping is -1 if sparki doesn't see anything
+        sparki.println(cm);
+        sparki.updateLCD();
+        if (cm > 0) { // ping is -1 if sparki doesn't see anything
           if (cm < 20) // if the distance measured is less than 15 centimeters
           {
             sparki.RGB(RGB_RED); // turn the light red
@@ -120,7 +119,6 @@ void loop()
     case FINDLINE:
       sparki.println("findline");
       sparki.updateLCD();
-      threshold = 700;
       sparki.moveRight(180);
       delay(5000);
       while (true) {
@@ -166,7 +164,6 @@ void loop()
       sparki.println("moveline");
       sparki.updateLCD();
       while (true) {
-        threshold = 700;
         lineLeft   = sparki.lineLeft();   // measure the left IR sensor
         lineCenter = sparki.lineCenter(); // measure the center IR sensor
         lineRight  = sparki.lineRight();  // measure the right IR sensor
