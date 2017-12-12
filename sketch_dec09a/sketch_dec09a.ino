@@ -8,9 +8,10 @@
 #define START 0
 #define SEARCH 1
 #define GRIP 2
-#define FINDLINE 3
-#define MOVELINE 4
-#define DROP 5
+#define CHECKMAG 3
+#define FINDLINE 4
+#define MOVELINE 5
+#define DROP 6
 #define DONE 10
 #define NO_LCD // disables the LCD, frees up 3088 Bytes Flash Memory, 1k RAM
 #define NO_ACCEL
@@ -124,7 +125,7 @@ void loop()
       while (true) {
         lineCenter = sparki.lineCenter(); // measure the center IR sensor
         lineLeft = sparki.lineLeft();
-        lineRight = sparki,lineRight();
+        lineRight = sparki.lineRight();
         if (lineCenter > threshold && lineLeft > threshold && lineRight > threshold) // if nothing 
         {
           sparki.moveForward();
