@@ -97,23 +97,22 @@ void loop()
       break;
 
     case CHECKMAG:
-      float x  = sparki.magX();   // measure the accelerometer x-axis
-      float y  = sparki.magY();   // measure the accelerometer y-axis
-      float z  = sparki.magZ();   // measure the accelerometer z-axis
-//      sparki.clearLCD();
-      // write the measurements to the screen
-      sparki.print("Mag X: "); 
-      sparki.println(x);
-     
-      sparki.print("Mag Y: "); 
-      sparki.println(y);
-     
-      sparki.print("Mag Z: "); 
-      sparki.println(z);
-     
-      sparki.updateLCD(); // display all of the information written to the screen
-      state = FINDLINE;
-      break;
+      while(true){
+        float y  = sparki.magY();   // measure the accelerometer y-axis
+        delay(300);
+  //      sparki.clearLCD();
+        // write the measurements to the screen
+        if(y > -400){
+          magBin = true;
+          state = FINDLINE;
+          break;
+        }
+        else{
+          magBin = false;
+          state = FINDLINE;
+          break;
+        }
+      }
 
       
     case FINDLINE:
@@ -124,15 +123,25 @@ void loop()
       delay(5000);
       while (true) {
         lineCenter = sparki.lineCenter(); // measure the center IR sensor
-        if (lineCenter > threshold)
+        lineLeft = sparki.lineLeft();
+        lineRight = sparki,lineRight();
+        if (lineCenter > threshold && lineLeft > threshold && lineRight > threshold) // if nothing 
         {
           sparki.moveForward();
         }
+        if(lineRight < threshold && lineCenter > threshold && lineLeft > threshold){ //if only right sensor
+          sparki.moveForward();
+        }
+        if(lineRight < threshold && lineCenter < threshold && lineLeft > threshold){ //if right and center
+          sparki.moveLeft();
+        }
+        if(lineRight < threshold && lineCenter < threshold && lineLeft < threshold){ //if all sensors
+          sparki.moveLeft(90);
+        }
         
-        if (lineCenter < threshold)
+        if (lineCenter < threshold && lineRight > threshold && lineLeft > threshold)
         {
-          sparki.moveLeft(15);
-          delay(100);
+          //delay(100);
           sparki.moveStop();
           state = MOVELINE;
           break;
