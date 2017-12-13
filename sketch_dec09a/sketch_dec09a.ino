@@ -22,7 +22,7 @@ int threshold = 500;
 int lineLeft;
 int lineCenter;
 int lineRight;
-bool magBin = false;
+bool magBin = true;
 
 
 void setup()
@@ -31,7 +31,7 @@ void setup()
   Serial.begin (9600); 
   pinMode(ULTRASONIC_TRIG, OUTPUT); 
   pinMode(ULTRASONIC_ECHO, INPUT); 
-  state = START;
+  state = MOVELINE;
   sparki.clearLCD();
 }
 
@@ -111,7 +111,7 @@ void loop()
         sparki.updateLCD();
   //      sparki.clearLCD();
         // write the measurements to the screen
-        if(y > -400){
+        if(y > 0){
           magBin = true;
           state = FINDLINE;
           break;
@@ -191,7 +191,7 @@ void loop()
         {
           sparki.moveRight();
         }
-        if ( (lineCenter < threshold) && (lineLeft < threshold) && (lineRight < threshold))
+        if ( (lineCenter < threshold) && (lineLeft < threshold) && (lineRight < threshold)) //all
           {
             
             if(!magBin){
@@ -201,6 +201,8 @@ void loop()
               break;
             }
             else{
+              sparki.println("TIS MAGNETIZED");
+              sparki.updateLCD();
               magBin = false;
               sparki.moveForward(5);
             }
