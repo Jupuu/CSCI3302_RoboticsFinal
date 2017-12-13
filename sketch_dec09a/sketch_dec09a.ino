@@ -18,7 +18,7 @@ int state;
 int duration;
 int cm;
 int objectDistance = 8;
-int threshold = 700;
+int threshold = 500;
 int lineLeft;
 int lineCenter;
 int lineRight;
@@ -31,7 +31,7 @@ void setup()
   Serial.begin (9600); 
   pinMode(ULTRASONIC_TRIG, OUTPUT); 
   pinMode(ULTRASONIC_ECHO, INPUT); 
-  state = FINDLINE;
+  state = START;
   sparki.clearLCD();
 }
 
@@ -44,7 +44,7 @@ void loop()
       /* printing state to help debug */
       sparki.println("start");
       sparki.updateLCD();
-      delay(1000);
+      delay(100);
 
       sparki.gripperOpen();
       delay(2000);
@@ -64,28 +64,22 @@ void loop()
       while (true)
       {
         sparki.moveLeft(20);
-        delay(1000);
-        digitalWrite(ULTRASONIC_TRIG, LOW); 
-        delayMicroseconds(2); 
-        digitalWrite(ULTRASONIC_TRIG, HIGH); 
-        delayMicroseconds(10); 
-        digitalWrite(ULTRASONIC_TRIG, LOW); 
-        duration = pulseIn(ULTRASONIC_ECHO, HIGH); 
-        cm = duration / 29 / 2;
+        delay(100);
+        cm = sparki.ping();
         delay(3000);
         sparki.println(cm);
         sparki.updateLCD();
         if (cm > 0) { // ping is -1 if sparki doesn't see anything
-          if (cm < 20) // if the distance measured is less than 15 centimeters
+          if (cm < 60) // if the distance measured is less than 15 centimeters
           {
             sparki.RGB(RGB_RED); // turn the light red
-            delay(1000);
+            delay(100);
             sparki.RGB(RGB_GREEN);
             sparki.println(cm);
             sparki.updateLCD();
             sparki.beep(); // beep!
             sparki.moveForward(cm);
-            delay(1000);
+            delay(100);
             cm = sparki.ping();
             delay(6000);
             if (cm <= objectDistance)
@@ -104,12 +98,13 @@ void loop()
       sparki.gripperClose();
       delay(3000);
       sparki.gripperStop();
-      delay(1000);
+      delay(100);
       state = CHECKMAG;
       break;
 
     case CHECKMAG:
       while(true){
+        delay(100);
         float y  = sparki.magY();   // measure the accelerometer y-axis
         delay(3000);
         sparki.println(y);
@@ -141,35 +136,34 @@ void loop()
         if ((lineCenter > threshold) && (lineLeft > threshold) && (lineRight > threshold)) // if nothing 
         {
           sparki.moveForward();
-          delay(1000);
         }
-//        if((lineRight < threshold) && (lineCenter > threshold) && (lineLeft > threshold)){ //if only right sensor
-//          sparki.moveForward();
-//        }
-//        if((lineRight < threshold) && (lineCenter < threshold) && (lineLeft > threshold)){ //if right and center
-//          sparki.moveLeft();
-//        }
+        if((lineRight < threshold) && (lineCenter > threshold) && (lineLeft > threshold)){ //if only right sensor
+          sparki.moveForward();
+        }
+        if((lineRight < threshold) && (lineCenter < threshold) && (lineLeft > threshold)){ //if right and center
+          sparki.moveForward();
+        }
 //        if((lineRight > threshold) && (lineCenter < threshold) && (lineLeft < threshold)){
 //          sparki.println("OH NO");
 //        }
         if((lineRight < threshold) && (lineCenter < threshold) && (lineLeft < threshold)){ //if all sensors
           sparki.moveLeft(45);
-          delay(1000);
-        }
-//        
-//        if ((lineCenter < threshold) && (lineRight > threshold) && (lineLeft > threshold)) { //just the center
-//          delay(100);
-//          sparki.moveStop();
-//          state = MOVELINE;
-//          break;
-//          
-//        }
-        if(lineCenter < threshold){
-          sparki.moveStop();
-          delay(1000);
+          sparki.moveForward(2);
           state = MOVELINE;
           break;
         }
+//        
+        if ((lineCenter < threshold) && (lineRight > threshold) && (lineLeft > threshold)) { //just the center
+          sparki.moveStop();
+          state = MOVELINE;
+          break;
+          
+        }
+//        if(lineCenter < threshold){
+//          sparki.moveStop();
+//          state = MOVELINE;
+//          break;
+//        }
         delay(100);
       }
 
@@ -182,24 +176,20 @@ void loop()
         lineLeft   = sparki.lineLeft();   // measure the left IR sensor
         lineCenter = sparki.lineCenter(); // measure the center IR sensor
         lineRight  = sparki.lineRight();  // measure the right IR sensor
-        delay(100);
 
         // if the center line sensor is the only one reading a line
         if ( (lineCenter < threshold) && (lineLeft > threshold) && (lineRight > threshold) )
         {
           sparki.moveForward(); 
-          delay(100);// move forward
         }
         if ( lineLeft < threshold) // if line is below left line sensor
         {
           sparki.moveLeft();
-          delay(100);// turn left
         }
 
         if ( lineRight < threshold) // if line is below right line sensor
         {
           sparki.moveRight();
-          delay(100);// turn right
         }
         if ( (lineCenter < threshold) && (lineLeft < threshold) && (lineRight < threshold))
           {
@@ -212,6 +202,7 @@ void loop()
             }
             else{
               magBin = false;
+              sparki.moveForward(5);
             }
             
           }        
