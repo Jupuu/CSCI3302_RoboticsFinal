@@ -22,7 +22,7 @@ int threshold = 500;
 int lineLeft;
 int lineCenter;
 int lineRight;
-bool magBin = true;
+bool magBin = false;
 
 
 void setup()
@@ -31,7 +31,7 @@ void setup()
   Serial.begin (9600); 
   pinMode(ULTRASONIC_TRIG, OUTPUT); 
   pinMode(ULTRASONIC_ECHO, INPUT); 
-  state = MOVELINE;
+  state = START;
   sparki.clearLCD();
 }
 
