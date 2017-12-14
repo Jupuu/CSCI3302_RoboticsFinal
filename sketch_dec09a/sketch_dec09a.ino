@@ -11,8 +11,9 @@
 #define CHECKMAG 3
 #define FINDLINE 4
 #define MOVELINE 5
-#define DROP 6
-#define DONE 10
+#define TURN 6
+#define DROP 7
+#define TURNAROUND 8
 #define NO_ACCEL
 int state;
 int duration;
@@ -197,7 +198,7 @@ void loop()
             if(!magBin){
               sparki.moveStop();
               delay(1000);
-              state = DROP;
+              state = TURN;
               break;
             }
             else{
@@ -214,7 +215,14 @@ void loop()
       
 
       
-
+    case TURN:
+      sparki.println("TURN");
+      sparki.updateLCD();
+      sparki.moveRight(90);
+      sparki.moveForward(15);
+      state = DROP;
+      break;
+    
     case DROP:
       sparki.println("drop");
       sparki.updateLCD();
@@ -222,13 +230,15 @@ void loop()
       delay(2000);
       sparki.gripperStop();
       delay(100);
-      state = DONE;
+      state = TURNAROUND;
       break;
 
-    case DONE:
-      //sparki.clearLCD();
-      sparki.println("Task completed my human overlords");
-      sparki.updateLCD();      
+    case TURNAROUND:
+      sparki.println("TURNAROUND");
+      sparki.updateLCD();
+      sparki.moveRight(180);
+      sparki.moveForward(15);
+      state = START;
       break;
    
   }
