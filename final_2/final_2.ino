@@ -64,7 +64,6 @@ void loop()
       sparki.println("start");
       sparki.updateLCD();
       delay(100);
-
       sparki.gripperOpen();
       delay(2000);
       sparki.gripperStop();
@@ -82,7 +81,7 @@ void loop()
       sparki.updateLCD();
       sparki.RGB(RGB_GREEN); // turn the light green
       //sparki.moveForward(); // move Sparki forward
-      while (true)
+      while (counter < 4) // four checks if there are objects
       {
         // calculate error
         rho   = sqrt((Xi - Xg) * (Xi - Xg) + (Yi - Yg) * (Yi - Yg));
@@ -184,6 +183,7 @@ void loop()
         Xi = Xi + cos(Thetai) * Xrdot * 0.1;
         Yi = Yi + sin(Thetai) * Xrdot * 0.1;
         Thetai = Thetai + Thetardot * 0.1;
+        counter++;
         while (millis() < time_start + 100); // wait until 100ms have elapsed
 
       }
