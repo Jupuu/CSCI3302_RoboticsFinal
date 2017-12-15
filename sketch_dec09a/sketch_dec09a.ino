@@ -11,9 +11,8 @@
 #define CHECKMAG 3
 #define FINDLINE 4
 #define MOVELINE 5
-#define TURN 6
-#define DROP 7
-#define TURNAROUND 8
+#define DROPBIN 6
+#define GOHOME 7
 #define NO_ACCEL
 int state;
 int duration;
@@ -23,6 +22,7 @@ int threshold = 500;
 int lineLeft;
 int lineCenter;
 int lineRight;
+int dropDec = 30;
 bool magBin = false;
 
 
@@ -32,7 +32,7 @@ void setup()
   Serial.begin (9600); 
   pinMode(ULTRASONIC_TRIG, OUTPUT); 
   pinMode(ULTRASONIC_ECHO, INPUT); 
-  state = CHECKMAG;
+  state = DROPBIN;
   sparki.clearLCD();
 }
 
@@ -223,34 +223,29 @@ void loop()
 
       delay(100); // wait 0.1
       }
-      
 
-      
-    case TURN:
-      sparki.println("TURN");
-      sparki.updateLCD();
+     case DROPBIN:
       sparki.moveRight(90);
-      sparki.moveForward(15);
-      state = DROP;
-      break;
-    
-    case DROP:
-      sparki.println("drop");
-      sparki.updateLCD();
+      sparki.moveForward(dropDec);
+      sparki.println("moving forward");
+      delay(2000);
       sparki.gripperOpen();
+      sparki.println("opening");
       delay(2000);
       sparki.gripperStop();
+      sparki.println("closing");
       delay(100);
-      state = TURNAROUND;
+      sparki.moveBackward(dropDec);
+      sparki.println("moving backward");
+      delay(2000);
+      dropDec = dropDec - 5;
+      sparki.moveRight(180);
+      state = GOHOME;
       break;
 
-    case TURNAROUND:
-      sparki.println("TURNAROUND");
-      sparki.updateLCD();
-      sparki.moveRight(180);
-      sparki.moveForward(15);
-      state = START;
-      break;
+
+    case GOHOME:
+    // do nothing for now
    
   }
 
