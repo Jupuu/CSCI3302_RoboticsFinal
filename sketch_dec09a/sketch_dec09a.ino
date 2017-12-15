@@ -32,7 +32,7 @@ void setup()
   Serial.begin (9600); 
   pinMode(ULTRASONIC_TRIG, OUTPUT); 
   pinMode(ULTRASONIC_ECHO, INPUT); 
-  state = DROPBIN;
+  state = START;
   sparki.clearLCD();
 }
 
@@ -209,7 +209,7 @@ void loop()
             if(!magBin){
               sparki.moveStop();
               delay(1000);
-              state = TURN;
+              state = DROPBIN;
               break;
             }
             else{
@@ -244,8 +244,7 @@ void loop()
       break;
 
 
-    case GOHOME:
-    // do nothing for now
+   
    
   }
 
