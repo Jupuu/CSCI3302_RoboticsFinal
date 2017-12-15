@@ -18,12 +18,14 @@ int state;
 int duration;
 int cm;
 int objectDistance = 8;
-int threshold = 500;
+int threshold = 4-=0;
 int lineLeft;
 int lineCenter;
 int lineRight;
-int dropDec = 30;
+int dropDec = 20;
+int counter = 0;
 bool magBin = false;
+bool item = false; 
 
 
 void setup()
@@ -38,6 +40,7 @@ void setup()
 
 void loop()
 {
+  
   switch (state)
   {
     // case tested - working
@@ -52,6 +55,7 @@ void loop()
       sparki.gripperStop();
       delay(1500);
       state = SEARCH;
+      counter = 0;
       break;
 
     // case tested - working
@@ -101,6 +105,7 @@ void loop()
       sparki.gripperStop();
       delay(100);
       state = CHECKMAG;
+      item = true;
       break;
 
     case CHECKMAG:
@@ -145,6 +150,14 @@ void loop()
         lineCenter = sparki.lineCenter(); // measure the center IR sensor
         lineLeft = sparki.lineLeft();
         lineRight = sparki.lineRight();
+        sparki.print("Left: ");
+        sparki.println(lineLeft);
+        sparki.print("Center: ");
+        sparki.println(lineCenter);
+        sparki.print("Right: ");
+        sparki.println(lineRight);
+        sparki.updateLCD();
+        sparki.clearLCD();
         if ((lineCenter > threshold) && (lineLeft > threshold) && (lineRight > threshold)) // if nothing 
         {
           sparki.moveForward();
@@ -188,38 +201,53 @@ void loop()
         lineLeft   = sparki.lineLeft();   // measure the left IR sensor
         lineCenter = sparki.lineCenter(); // measure the center IR sensor
         lineRight  = sparki.lineRight();  // measure the right IR sensor
-
+        sparki.print("Left: ");
+        sparki.println(lineLeft);
+        sparki.print("Center: ");
+        sparki.println(lineCenter);
+        sparki.print("Right: ");
+        sparki.println(lineRight);
+        sparki.updateLCD();
+        sparki.clearLCD();
         // if the center line sensor is the only one reading a line
-        if ( (lineCenter < threshold) && (lineLeft > threshold) && (lineRight > threshold) )
-        {
-          sparki.moveForward(); 
-        }
-        if ( lineLeft < threshold) // if line is below left line sensor
-        {
-          sparki.moveLeft();
-        }
 
-        if ( lineRight < threshold) // if line is below right line sensor
-        {
-          sparki.moveRight();
-        }
         if ( (lineCenter < threshold) && (lineLeft < threshold) && (lineRight < threshold)) //all
           {
             
-            if(!magBin){
+            if(!magBin && item){
               sparki.moveStop();
               delay(1000);
               state = DROPBIN;
+              counter++;
               break;
             }
-            else{
+            else if(magBin && item) {
               sparki.println("TIS MAGNETIZED");
               sparki.updateLCD();
               magBin = false;
               sparki.moveForward(5);
+              counter++;
+              
+            }
+            else if (!item){
+              state = START;
             }
             
-          }        
+          } 
+        else if ( (lineCenter < threshold) && (lineLeft > threshold) && (lineRight > threshold) )
+        {
+          sparki.moveForward(); 
+        }
+        else if ( lineLeft < threshold) // if line is below left line sensor
+        {
+          sparki.moveLeft();
+        }
+
+        else if ( lineRight < threshold) // if line is below right line sensor
+        {
+          sparki.moveRight();
+        }
+            
 
       delay(100); // wait 0.1
       }
@@ -240,8 +268,45 @@ void loop()
       delay(2000);
       dropDec = dropDec - 5;
       sparki.moveRight(180);
+      item = false;
       state = GOHOME;
       break;
+
+     case GOHOME:
+      while (true) {
+        lineLeft   = sparki.lineLeft();   // measure the left IR sensor
+        lineCenter = sparki.lineCenter(); // measure the center IR sensor
+        lineRight  = sparki.lineRight(); 
+
+        if ( (lineCenter > threshold) && (lineLeft > threshold) && (lineRight > threshold) )
+        {
+          sparki.moveBackward(); 
+        }
+
+        if((lineRight < threshold) && (lineCenter > threshold) && (lineLeft > threshold)){ //if only right sensor
+          sparki.moveForward();
+        }
+        if((lineRight < threshold) && (lineCenter < threshold) && (lineLeft > threshold)){ //if right and center
+          sparki.moveForward();
+        }
+//        if((lineRight > threshold) && (lineCenter < threshold) && (lineLeft < threshold)){
+//          sparki.println("OH NO");
+//        }
+        if((lineRight < threshold) && (lineCenter < threshold) && (lineLeft < threshold)){ //if all sensors
+          sparki.moveRight(45);
+          sparki.moveForward(2);
+          state = MOVELINE;
+          break;
+        }
+//        
+        if ((lineCenter < threshold) && (lineRight > threshold) && (lineLeft > threshold)) { //just the center
+          sparki.moveStop();
+          state = MOVELINE;
+          break;
+          
+        }
+      }
+      
 
 
    
