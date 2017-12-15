@@ -32,7 +32,7 @@ void setup()
   Serial.begin (9600); 
   pinMode(ULTRASONIC_TRIG, OUTPUT); 
   pinMode(ULTRASONIC_ECHO, INPUT); 
-  state = START;
+  state = CHECKMAG;
   sparki.clearLCD();
 }
 
@@ -107,23 +107,33 @@ void loop()
       while(true){
         delay(100);
         float y  = sparki.magY();   // measure the accelerometer y-axis
+        float x = sparki.magX();
+        float z = sparki.magZ();
         y = abs(y);
-        delay(3000);
+        x = abs(x);
+        z = abs(z);
+        delay(100);
+        float totalmag = x + y + z;
         sparki.println(y);
+        sparki.print("x");
+        sparki.println(x);
+        sparki.print("z");
+        sparki.println(z);
         sparki.updateLCD();
-  //      sparki.clearLCD();
+        sparki.clearLCD();
         // write the measurements to the screen
-        if(y > 100){
-          magBin = true;
-          state = FINDLINE;
-          break;
+        if(totalmag > 1500){
+           magBin = true;
+           sparki.println("ITS MAG");
+           state = FINDLINE;
+           break;
         }
         else{
           magBin = false;
           state = FINDLINE;
           break;
-        }
-      }
+        } 
+      } 
 
       
     case FINDLINE:
