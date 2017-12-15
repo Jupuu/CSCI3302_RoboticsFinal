@@ -67,7 +67,7 @@ void loop()
         sparki.moveLeft(20);
         delay(100);
         cm = sparki.ping();
-        delay(3000);
+        delay(100);
         sparki.println(cm);
         sparki.updateLCD();
         if (cm > 0) { // ping is -1 if sparki doesn't see anything
@@ -82,7 +82,7 @@ void loop()
             sparki.moveForward(cm);
             delay(100);
             cm = sparki.ping();
-            delay(6000);
+            delay(3000);
             if (cm <= objectDistance)
             {
               state = GRIP;
@@ -107,12 +107,13 @@ void loop()
       while(true){
         delay(100);
         float y  = sparki.magY();   // measure the accelerometer y-axis
+        y = abs(y);
         delay(3000);
         sparki.println(y);
         sparki.updateLCD();
   //      sparki.clearLCD();
         // write the measurements to the screen
-        if(y > 0){
+        if(y > 100){
           magBin = true;
           state = FINDLINE;
           break;
