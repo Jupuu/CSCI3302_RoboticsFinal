@@ -139,20 +139,20 @@ void loop()
         //  sparki.moveLeft(20);
         //  delay(100);
         cm = sparki.ping();
-        delay(100);
+        while (millis() < time_start + 100); // wait until 100ms have elapsed
         sparki.updateLCD();
 
         if (cm > 0) { // ping is -1 if sparki doesn't see anything
           if (cm < 60) // if the distance measured is less than 15 centimeters
           {
             sparki.RGB(RGB_RED); // turn the light red
-            delay(100);
+            while (millis() < time_start + 100); // wait until 100ms have elapsed
             sparki.RGB(RGB_GREEN);
             sparki.println(cm);
             sparki.updateLCD();
             sparki.beep(); // beep!
             sparki.moveForward(cm);
-            delay(100);
+            while (millis() < time_start + 100); // wait until 100ms have elapsed
             cm = sparki.ping();
             delay(3000);
             if (cm <= objectDistance)
@@ -281,7 +281,7 @@ void loop()
         //          state = MOVELINE;
         //          break;
         //        }
-        delay(100);
+        while (millis() < time_start + 100); // wait until 100ms have elapsed
       }
 
     // case not tested
@@ -302,6 +302,22 @@ void loop()
         sparki.updateLCD();
         sparki.clearLCD();
         // if the center line sensor is the only one reading a line
+    
+        
+        
+        if ( (lineCenter < threshold) && (lineLeft > threshold) && (lineRight > threshold) )
+        {
+          sparki.moveForward();
+        }
+        if ( lineLeft < threshold) // if line is below left line sensor
+        {
+          sparki.moveLeft();
+        }
+
+        if ( lineRight < threshold) // if line is below right line sensor
+        {
+          sparki.moveRight();
+        }
 
         if ( (lineCenter < threshold) && (lineLeft < threshold) && (lineRight < threshold)) //all
         {
@@ -318,28 +334,10 @@ void loop()
             sparki.updateLCD();
             magBin = false;
             sparki.moveForward(5);
-
-
           }
-
-
-        }
-        else if ( (lineCenter < threshold) && (lineLeft > threshold) && (lineRight > threshold) )
-        {
-          sparki.moveForward();
-        }
-        else if ( lineLeft < threshold) // if line is below left line sensor
-        {
-          sparki.moveLeft();
         }
 
-        else if ( lineRight < threshold) // if line is below right line sensor
-        {
-          sparki.moveRight();
-        }
-
-
-        delay(100); // wait 0.1
+        while (millis() < time_start + 100); // wait until 100ms have elapsed
       }
 
     case DROPBIN:
@@ -413,5 +411,5 @@ void loop()
 
 
 
-  delay(100); // wait 0.1 seconds (100 milliseconds)
+  while (millis() < time_start + 100); // wait until 100ms have elapsed
 }
